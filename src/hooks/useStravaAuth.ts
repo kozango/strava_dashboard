@@ -6,7 +6,7 @@ export const useStravaAuth = () => {
   const [accessToken, setAccessToken] = useState<string | null>(
     localStorage.getItem('strava_access_token')
   );
-  const [refreshToken, setRefreshToken] = useState<string | null>(
+  const [_refreshToken, setRefreshToken] = useState<string | null>(
     localStorage.getItem('strava_refresh_token')
   );
   const [athlete, setAthlete] = useState<StravaAthlete | null>(null);

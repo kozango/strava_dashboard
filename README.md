@@ -10,6 +10,14 @@
 ## 機能
 
 - 🔐 Strava OAuth認証
+- 🏃 アクティビティタイプでフィルタリング
+  - 自転車、ランニング、トレイルランニング、登山など
+  - タイプごとのアクティビティ数を表示
+  - フィルター選択で統計とグラフを動的に更新
+- 🗺️ 地図でルート表示
+  - アクティビティのルートを地図上に線で表示
+  - スポーツタイプごとに色分け
+  - ポップアップで詳細情報を表示
 - 📊 アクティビティ統計の表示
   - 総アクティビティ数
   - 総距離
@@ -85,6 +93,7 @@ npm run preview
 - **ビルドツール**: Vite
 - **スタイリング**: Tailwind CSS
 - **グラフ**: Recharts
+- **地図**: Leaflet + React Leaflet
 - **HTTP クライアント**: Axios
 - **API**: Strava API v3
 
@@ -93,20 +102,23 @@ npm run preview
 ```
 strava_dashboard/
 ├── src/
-│   ├── components/        # Reactコンポーネント
-│   │   ├── Login.tsx     # ログイン画面
-│   │   ├── Dashboard.tsx # メインダッシュボード
-│   │   ├── StatsCard.tsx # 統計カード
-│   │   └── ActivityChart.tsx # グラフコンポーネント
-│   ├── hooks/            # カスタムフック
+│   ├── components/          # Reactコンポーネント
+│   │   ├── Login.tsx       # ログイン画面
+│   │   ├── Dashboard.tsx   # メインダッシュボード
+│   │   ├── StatsCard.tsx   # 統計カード
+│   │   ├── ActivityChart.tsx # グラフコンポーネント
+│   │   ├── ActivityFilter.tsx # アクティビティフィルター
+│   │   └── ActivityMap.tsx # 地図コンポーネント
+│   ├── hooks/              # カスタムフック
 │   │   └── useStravaAuth.ts # 認証フック
-│   ├── services/         # API関連
-│   │   └── stravaApi.ts  # Strava APIクライアント
-│   ├── types/            # TypeScript型定義
-│   │   └── strava.ts     # Strava関連の型
-│   ├── App.tsx           # メインアプリケーション
-│   ├── main.tsx          # エントリーポイント
-│   └── index.css         # グローバルスタイル
+│   ├── services/           # API関連
+│   │   └── stravaApi.ts    # Strava APIクライアント
+│   ├── types/              # TypeScript型定義
+│   │   └── strava.ts       # Strava関連の型
+│   ├── App.tsx             # メインアプリケーション
+│   ├── main.tsx            # エントリーポイント
+│   ├── vite-env.d.ts       # Vite環境変数型定義
+│   └── index.css           # グローバルスタイル
 ├── index.html
 ├── package.json
 ├── tsconfig.json

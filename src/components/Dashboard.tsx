@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { stravaApi } from '../services/stravaApi';
-import { StravaActivity, StravaStats } from '../types/strava';
+import { StravaActivity } from '../types/strava';
 import { ActivityChart } from './ActivityChart';
 import { StatsCard } from './StatsCard';
+import { ActivityFilter } from './ActivityFilter';
+import { ActivityMap } from './ActivityMap';
 
 interface DashboardProps {
   accessToken: string;
@@ -16,27 +18,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onLogout,
 }) => {
   const [activities, setActivities] = useState<StravaActivity[]>([]);
-  const [stats, setStats] = useState<StravaStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedActivityType, setSelectedActivityType] = useState<string>('all');
 
   useEffect(() => {
     const fetchActivities = async () => {
       try {
         setIsLoading(true);
-        const data = await stravaApi.getActivities(accessToken, 1, 50);
+        const data = await stravaApi.getActivities(accessToken, 1, 100);
         setActivities(data);
-
-        const calculatedStats: StravaStats = {
-          totalActivities: data.length,
-          totalDistance: data.reduce((sum, act) => sum + act.distance, 0),
-          totalTime: data.reduce((sum, act) => sum + act.moving_time, 0),
-          totalElevation: data.reduce((sum, act) => sum + act.total_elevation_gain, 0),
-          averageSpeed: data.length > 0
-            ? data.reduce((sum, act) => sum + act.average_speed, 0) / data.length
-            : 0,
-        };
-        setStats(calculatedStats);
       } catch (err) {
         setError('データの取得に失敗しました');
         console.error(err);
@@ -47,6 +38,40 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
     fetchActivities();
   }, [accessToken]);
+
+  // Calculate activity counts by type
+  const activityCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: activities.length };
+    activities.forEach((activity) => {
+      const type = activity.sport_type;
+      counts[type] = (counts[type] || 0) + 1;
+    });
+    return counts;
+  }, [activities]);
+
+  // Filter activities based on selected type
+  const filteredActivities = useMemo(() => {
+    if (selectedActivityType === 'all') {
+      return activities;
+    }
+    return activities.filter((activity) => activity.sport_type === selectedActivityType);
+  }, [activities, selectedActivityType]);
+
+  // Calculate stats based on filtered activities
+  const stats = useMemo(() => {
+    const data = filteredActivities;
+    if (data.length === 0) return null;
+
+    return {
+      totalActivities: data.length,
+      totalDistance: data.reduce((sum, act) => sum + act.distance, 0),
+      totalTime: data.reduce((sum, act) => sum + act.moving_time, 0),
+      totalElevation: data.reduce((sum, act) => sum + act.total_elevation_gain, 0),
+      averageSpeed: data.length > 0
+        ? data.reduce((sum, act) => sum + act.average_speed, 0) / data.length
+        : 0,
+    };
+  }, [filteredActivities]);
 
   const formatDistance = (meters: number) => (meters / 1000).toFixed(2);
   const formatTime = (seconds: number) => {
@@ -92,6 +117,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
       </nav>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <ActivityFilter
+          selectedType={selectedActivityType}
+          onTypeChange={setSelectedActivityType}
+          activityCounts={activityCounts}
+        />
+
         {stats && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -117,9 +148,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
               />
             </div>
 
-            <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700 mb-8">
+            <ActivityMap activities={filteredActivities} />
+
+            <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700 mb-8 mt-8">
               <h2 className="text-xl font-semibold mb-4">アクティビティの推移</h2>
-              <ActivityChart activities={activities} />
+              <ActivityChart activities={filteredActivities} />
             </div>
           </>
         )}
@@ -127,7 +160,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700">
           <h2 className="text-xl font-semibold mb-4">最近のアクティビティ</h2>
           <div className="space-y-3">
-            {activities.slice(0, 10).map((activity) => (
+            {filteredActivities.slice(0, 10).map((activity) => (
               <div
                 key={activity.id}
                 className="bg-slate-700/50 rounded-lg p-4 hover:bg-slate-700 transition-colors"

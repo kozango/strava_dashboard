@@ -68,7 +68,23 @@ export class StravaApi {
   async getActivity(accessToken: string, activityId: number): Promise<StravaActivity> {
     const response = await axios.get(`${STRAVA_API_URL}/activities/${activityId}`, {
       headers: { Authorization: `Bearer ${accessToken}` },
+      params: { include_all_efforts: false },
     });
+    return response.data;
+  }
+
+  async getActivityStream(
+    accessToken: string,
+    activityId: number,
+    keys: string[] = ['latlng']
+  ): Promise<any> {
+    const response = await axios.get(
+      `${STRAVA_API_URL}/activities/${activityId}/streams`,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        params: { keys: keys.join(','), key_by_type: true },
+      }
+    );
     return response.data;
   }
 }

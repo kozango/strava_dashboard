@@ -25,6 +25,12 @@ export interface StravaActivity {
   average_heartrate?: number;
   max_heartrate?: number;
   kudos_count: number;
+  map?: {
+    summary_polyline?: string;
+    polyline?: string;
+  };
+  start_latlng?: [number, number];
+  end_latlng?: [number, number];
 }
 
 export interface StravaStats {
