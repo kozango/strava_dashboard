@@ -1,18 +1,24 @@
 import React from 'react';
+import { DarkModeToggle } from './DarkModeToggle';
 
 interface LoginProps {
   onLogin: () => void;
+  isDarkMode: boolean;
+  onToggleTheme: () => void;
 }
 
-export const Login: React.FC<LoginProps> = ({ onLogin }) => {
+export const Login: React.FC<LoginProps> = ({ onLogin, isDarkMode, onToggleTheme }) => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <div className="max-w-md w-full space-y-8 p-10 bg-slate-800/50 rounded-xl shadow-2xl backdrop-blur-sm border border-slate-700">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 via-gray-200 to-gray-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 transition-colors">
+      <div className="absolute top-4 right-4">
+        <DarkModeToggle isDarkMode={isDarkMode} onToggle={onToggleTheme} />
+      </div>
+      <div className="max-w-md w-full space-y-8 p-10 bg-white/80 dark:bg-slate-800/50 rounded-xl shadow-2xl backdrop-blur-sm border border-gray-200 dark:border-slate-700 transition-colors">
         <div>
-          <h2 className="mt-6 text-center text-4xl font-bold text-white">
+          <h2 className="mt-6 text-center text-4xl font-bold text-gray-900 dark:text-white transition-colors">
             Strava Dashboard
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-400">
+          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400 transition-colors">
             あなたのStravaデータを美しく可視化
           </p>
         </div>
@@ -31,16 +37,16 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-600"></div>
+                <div className="w-full border-t border-gray-300 dark:border-slate-600 transition-colors"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-slate-800 text-gray-400">
+                <span className="px-2 bg-white dark:bg-slate-800 text-gray-500 dark:text-gray-400 transition-colors">
                   Strava APIを使用
                 </span>
               </div>
             </div>
           </div>
-          <p className="text-xs text-center text-gray-500 mt-4">
+          <p className="text-xs text-center text-gray-500 dark:text-gray-500 mt-4 transition-colors">
             Strava APIキーが必要です。<br />
             <a
               href="https://www.strava.com/settings/api"
